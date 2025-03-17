@@ -1,80 +1,63 @@
-# 🗳️ Voting System Smart Contract
+# 🏆 Auction Smart Contract
 
-This project is a **decentralized voting system** built on Ethereum using **Solidity**. It ensures **secure, transparent, and tamper-proof elections**, managed by a chairman who controls **candidate registration and voter eligibility**. The smart contract enforces fair voting rules, prevents fraud, and ensures accurate results. 
+This project implements a **secure and transparent auction system** using **Solidity** on the **Ethereum blockchain**. The contract enables users to place bids within a specified auction period, ensuring **fairness, immutability, and automated winner selection**.
+
+---
 
 ## 🚀 Features
 
-### ✅ Candidate & Voter Management
-- Candidates are stored as `bytes32` for **gas optimization**.
-- The chairman grants voting rights to **eligible voters**.
-- Prevents **double voting** and unauthorized access.
-- Tracks whether a voter has already voted.
+### ✅ Auction Management
+- Allows the auction **creator** to set a **bidding period**.
+- Defines the **minimum bid amount** required for participation.
+- Automatically determines the **highest bidder** when the auction ends.
 
-### ⏳ Voting Process
-- **Chairman-controlled** voting period (`setVotingPeriod` function).
-- Voting starts only after the `startVoting()` function is called.
-- **Immutable voting results** after the `votingEnd()` function is executed.
-- **Tie detection** with an automatic `TieDetected` event.
+### 🏅 Bidding Process
+- Users can **place bids** if they meet the **minimum bid requirement**.
+- Each bid must be **higher than the current highest bid**.
+- The highest bid is **stored securely** until the auction ends.
 
-### 🔐 Security & Transparency
-- **Role-based access control** restricts unauthorized actions.
-- **Event logging** tracks votes and election results.
-- **Time-based restrictions** prevent premature or late voting.
+### 🔐 Security & Fairness
+- Prevents **late bids** after the auction has ended.
+- Ensures **only the highest bidder wins**.
+- Implements **fund withdrawal functions** to return bids to non-winning participants.
+
+---
 
 ## 📜 Smart Contract Structure
 
 ### 1️⃣ **Data Structures**
-#### `struct Voter`
-- `hasVoted`: Tracks if the voter has cast their vote.
-- `canVote`: Determines voter eligibility.
-- `votedCandidateIndex`: Stores the index of the voted candidate.
-
-#### `struct Candidate`
-- `name`: The candidate’s name (stored as `bytes32`).
-- `voteCount`: The number of votes received.
+#### `struct Bid`
+- `bidder`: Address of the bidder.
+- `amount`: The amount of the bid.
 
 ### 2️⃣ **Main Functions**
-#### 🏗️ `constructor(string[] memory candidateNames, bool _chairmanCanVote)`
-- Initializes the contract with candidate names.
-- Converts candidate names to `bytes32` to optimize gas usage.
-- Sets whether the **chairman** is allowed to vote.
+#### 🔧 `constructor(uint _biddingTime, uint _minBid)`
+- Initializes the auction with a specified **bidding time** and **minimum bid amount**.
+- Sets the **start and end time** of the auction.
 
-#### ⏳ `setVotingPeriod(uint durationInSeconds)`
-- The chairman sets the voting period (in seconds).
-- Defines the **start** and **end** times for voting.
+#### 📌 `placeBid()`
+- Allows participants to place a bid **greater than the current highest bid**.
+- Refunds the previous highest bidder before updating to the new highest bid.
 
-#### 🔥 `startVoting()`
-- Marks the voting process as **active**.
-- Emits a `VotingStarted` event.
+#### ⏹️ `endAuction()`
+- **Finalizes the auction** and determines the highest bidder.
+- Prevents further bids from being placed.
+- Transfers the winning amount to the auction creator.
 
-#### ✅ `giveRightToVote(address voter)`
-- Grants voting rights to a specific voter.
-- Ensures the voter **has not** received voting rights before.
+#### 💰 `withdraw()`
+- Allows non-winning bidders to **withdraw their funds** after the auction has ended.
 
-#### 🗳️ `vote(uint candidateIndex)`
-- Allows eligible voters to cast their votes for a candidate.
-- Updates the candidate's **vote count**.
-- Emits a `VoteCast` event.
-
-#### ⏹️ `votingEnd()`
-- Ends the voting process.
-- Determines the winner or **detects a tie**.
-- Emits `VotingEnded` or `TieDetected` events.
-
-#### 🏆 `findWinner()`
-- Internally calculates the **candidate with the most votes**.
-- Detects ties and **returns the result**.
-
-#### 🔍 `getCandidate(uint index)`
-- Returns the **name** and **vote count** of a candidate.
-
-#### ⏳ `getElapsedTime()`
-- Returns the **elapsed time** since voting started.
+#### 🔍 `getHighestBid()`
+- Returns the **current highest bid** and **highest bidder's address**.
 
 #### ⏳ `getRemainingTime()`
-- Returns the **remaining time** until voting ends.
+- Returns the **remaining time** before the auction ends.
 
-### 3️⃣ **Helper Function**
-#### 🔁 `stringToBytes32(string memory source)`
-- Converts a **string** to `bytes32` for **efficient storage**.
+---
 
+## ⚡ Deployment and Usage
+
+### 🔧 **Deployment**
+To deploy the contract, provide:
+- The **duration of the auction** (in seconds).
+- The **minimum bid amount** required.
